@@ -2,6 +2,7 @@ title: AppSheet AI Processor
 description: AppSheetとVertex AIを連携し、介護記録のAI処理を行うCloud Runサービス
 baseurl: "/sanwa-appsheet-vertex-processor"
 url: "https://yasushi-honda.github.io"
+repository: yasushi-honda/sanwa-appsheet-vertex-processor
 
 remote_theme: pages-themes/cayman@v0.2.0
 plugins:
