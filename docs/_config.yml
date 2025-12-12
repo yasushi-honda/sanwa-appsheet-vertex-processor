@@ -1,0 +1,33 @@
+title: AppSheet AI Processor
+description: AppSheetとVertex AIを連携し、介護記録のAI処理を行うCloud Runサービス
+baseurl: "/sanwa-appsheet-vertex-processor"
+url: "https://yasushi-honda.github.io"
+
+remote_theme: pages-themes/cayman@v0.2.0
+plugins:
+  - jekyll-remote-theme
+
+# Mermaid対応
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
+# ナビゲーション
+nav:
+  - title: Home
+    url: /
+  - title: Architecture
+    url: /architecture
+  - title: API Spec
+    url: /api-spec
+  - title: Setup Guide
+    url: /setup-guide
+  - title: CI/CD
+    url: /ci-cd
+  - title: GCP Setup
+    url: /gcp-setup
+
+# Mermaidスクリプトをheadに追加
+head_scripts:
+  - https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js

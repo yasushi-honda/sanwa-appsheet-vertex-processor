@@ -2,9 +2,22 @@
 
 AppSheetアプリケーションからユーザーが選択した行データに対して、GCP上のCloud Runサービス経由でVertex AI（Gemini）による処理を実行し、結果をGoogleスプレッドシートに書き戻すシステム。
 
-## リポジトリ
+## リンク
 
-- GitHub: https://github.com/yasushi-honda/sanwa-appsheet-vertex-processor
+| リソース | URL |
+|---|---|
+| GitHub | https://github.com/yasushi-honda/sanwa-appsheet-vertex-processor |
+| ドキュメント | https://yasushi-honda.github.io/sanwa-appsheet-vertex-processor/ |
+
+## CI/CD
+
+[![Deploy to Cloud Run](https://github.com/yasushi-honda/sanwa-appsheet-vertex-processor/actions/workflows/deploy.yml/badge.svg)](https://github.com/yasushi-honda/sanwa-appsheet-vertex-processor/actions/workflows/deploy.yml)
+[![Deploy GitHub Pages](https://github.com/yasushi-honda/sanwa-appsheet-vertex-processor/actions/workflows/pages.yml/badge.svg)](https://github.com/yasushi-honda/sanwa-appsheet-vertex-processor/actions/workflows/pages.yml)
+
+| パイプライン | トリガー | 内容 |
+|---|---|---|
+| Deploy to Cloud Run | mainへのpush（docs以外） | Dockerビルド → Artifact Registry → Cloud Run |
+| Deploy GitHub Pages | mainへのpush（docs変更時） | Jekyll ビルド → GitHub Pages |
 
 ## システム構成
 
@@ -18,6 +31,8 @@ AppSheetアプリケーションからユーザーが選択した行データに
 [Google スプレッドシート] (データソース)
 ```
 
+詳細は[アーキテクチャドキュメント](https://yasushi-honda.github.io/sanwa-appsheet-vertex-processor/architecture)を参照。
+
 ## 技術スタック
 
 | カテゴリ | 技術 |
@@ -28,6 +43,8 @@ AppSheetアプリケーションからユーザーが選択した行データに
 | AI/ML | Vertex AI (gemini-1.5-flash) |
 | データストア | Google Sheets API v4 |
 | インフラ | Google Cloud Run |
+| CI/CD | GitHub Actions |
+| ドキュメント | GitHub Pages (Jekyll) |
 | リージョン | asia-northeast1 |
 
 ## 認証方式
@@ -50,105 +67,46 @@ cd sanwa-appsheet-vertex-processor
 
 ### 環境変数の設定（direnv使用）
 
-direnvを使用してプロジェクト単位で環境変数を管理します。
-
 ```bash
 # direnvのインストール（未インストールの場合）
-# macOS
 brew install direnv
-
-# bashの場合、~/.bashrc に追加
-echo 'eval "$(direnv hook bash)"' >> ~/.bashrc
-
-# zshの場合、~/.zshrc に追加
 echo 'eval "$(direnv hook zsh)"' >> ~/.zshrc
+source ~/.zshrc
 
-# シェルを再起動または設定を再読み込み
-source ~/.zshrc  # または source ~/.bashrc
-```
-
-```bash
 # 環境変数テンプレートをコピー
 cp .envrc.example .envrc
-
-# .envrcを編集して値を設定
 vim .envrc
-
-# direnvを有効化
 direnv allow
 ```
 
-### ローカル開発環境のセットアップ
+### GCPリソースのセットアップ
 
 ```bash
-# Python仮想環境の作成
-python -m venv venv
-source venv/bin/activate
-
-# 依存関係のインストール
-pip install -r requirements.txt
-
-# ローカルでのGCP認証（Application Default Credentials）
-gcloud auth application-default login
-
-# アプリケーション実行
-python src/main.py
+./deploy/setup.sh sanwa-appsheet-vertex
 ```
 
-## セットアップ手順
+### デプロイ
 
-### 1. 前提条件
-
-- GCPプロジェクトが作成済みであること
-- `gcloud` CLIがインストール・認証済みであること
-- Dockerがインストール済みであること
-
-### 2. GCPリソースのセットアップ
+mainブランチにプッシュすると自動デプロイされます。
 
 ```bash
-cd deploy
-./setup.sh <YOUR_PROJECT_ID>
+git add .
+git commit -m "Deploy"
+git push origin main
 ```
 
-このスクリプトで以下が実行されます：
-- 必要なAPIの有効化
-- Artifact Registryリポジトリの作成
-- サービスアカウントの作成
-- IAMロールの付与
+詳細は[セットアップガイド](https://yasushi-honda.github.io/sanwa-appsheet-vertex-processor/setup-guide)を参照。
 
-### 3. スプレッドシートの共有設定
+## ドキュメント
 
-対象のGoogleスプレッドシートで、以下のサービスアカウントを「編集者」として共有設定に追加してください：
+GitHub Pagesでドキュメントを公開しています。
 
-```
-ai-processor@<YOUR_PROJECT_ID>.iam.gserviceaccount.com
-```
-
-### 4. Dockerイメージのビルドとプッシュ
-
-```bash
-# Artifact Registryへの認証
-gcloud auth configure-docker asia-northeast1-docker.pkg.dev
-
-# イメージのビルド
-docker build -t asia-northeast1-docker.pkg.dev/<PROJECT_ID>/appsheet-ai-processor/processor:latest .
-
-# イメージのプッシュ
-docker push asia-northeast1-docker.pkg.dev/<PROJECT_ID>/appsheet-ai-processor/processor:latest
-```
-
-### 5. Cloud Runへのデプロイ
-
-```bash
-gcloud run deploy appsheet-ai-processor \
-  --image=asia-northeast1-docker.pkg.dev/<PROJECT_ID>/appsheet-ai-processor/processor:latest \
-  --region=asia-northeast1 \
-  --service-account=ai-processor@<PROJECT_ID>.iam.gserviceaccount.com \
-  --allow-unauthenticated \
-  --memory=512Mi \
-  --timeout=300 \
-  --set-env-vars="PROJECT_ID=<PROJECT_ID>,SPREADSHEET_ID=<SPREADSHEET_ID>,SHEET_NAME=<SHEET_NAME>,PK_COLUMN=<PK_COLUMN>,TARGET_COLUMN=<TARGET_COLUMN>,RESULT_COLUMN=<RESULT_COLUMN>,WEBHOOK_SECRET=<WEBHOOK_SECRET>"
-```
+- [ホーム](https://yasushi-honda.github.io/sanwa-appsheet-vertex-processor/) - 概要
+- [アーキテクチャ](https://yasushi-honda.github.io/sanwa-appsheet-vertex-processor/architecture) - システム構成図
+- [API仕様](https://yasushi-honda.github.io/sanwa-appsheet-vertex-processor/api-spec) - エンドポイント仕様
+- [セットアップガイド](https://yasushi-honda.github.io/sanwa-appsheet-vertex-processor/setup-guide) - 環境構築手順
+- [CI/CD](https://yasushi-honda.github.io/sanwa-appsheet-vertex-processor/ci-cd) - 自動デプロイ
+- [GCPセットアップ](https://yasushi-honda.github.io/sanwa-appsheet-vertex-processor/gcp-setup) - GCPリソース設定
 
 ## 環境変数
 
@@ -174,94 +132,56 @@ gcloud run deploy appsheet-ai-processor \
 
 ## API仕様
 
+詳細は[API仕様ドキュメント](https://yasushi-honda.github.io/sanwa-appsheet-vertex-processor/api-spec)を参照。
+
 ### POST /process
 
-AppSheet Webhookからのリクエストを受け付け、AI処理を実行する。
+AppSheet Webhookからのリクエストを受け付け、AI処理を実行。
 
-#### リクエストヘッダー
-
-| ヘッダー | 必須 | 説明 |
-|---|---|---|
-| Content-Type | はい | application/json |
-| X-AppSheet-Secret | はい | Webhook認証用シークレット |
-
-#### リクエストボディ
-
-AppSheetの `<<_ROW_TO_JSON>>` 形式のJSONデータ。
-
-```json
-{
-  "RowID": "abc-123",
-  "TargetText": "処理対象のテキストデータ",
-  "Category": "カテゴリA",
-  "Is_Processed": true
-}
+```bash
+curl -X POST https://appsheet-ai-processor-xxx.run.app/process \
+  -H "Content-Type: application/json" \
+  -H "X-AppSheet-Secret: your-secret" \
+  -d '{"RowID": "abc-123", "TargetText": "処理対象テキスト"}'
 ```
-
-#### レスポンス
-
-**成功時 (200 OK)**
-
-```json
-{
-  "status": "success",
-  "row_id": "abc-123",
-  "ai_result": "AIによる処理結果テキスト",
-  "processed_at": "2024-12-01T10:00:05Z"
-}
-```
-
-**エラー時**
-
-| ステータス | 説明 |
-|---|---|
-| 400 Bad Request | リクエスト形式エラー |
-| 403 Forbidden | 認証エラー |
-| 500 Internal Server Error | 処理エラー |
 
 ### GET /health
 
 ヘルスチェック用エンドポイント。
 
 ```json
-{
-  "status": "healthy",
-  "version": "1.0.0"
-}
+{"status": "healthy", "version": "1.0.0"}
 ```
-
-## AppSheet Webhook設定
-
-1. AppSheetアプリのAutomationを開く
-2. 新しいBotを作成
-3. トリガー条件を設定（例: ボタン押下時）
-4. アクションで「Call a webhook」を選択
-5. 以下を設定：
-   - URL: Cloud RunサービスのURL + `/process`
-   - HTTP Method: POST
-   - HTTP Content-Type: application/json
-   - HTTP Headers: `X-AppSheet-Secret: <WEBHOOK_SECRET>`
-   - Body: `<<_ROW_TO_JSON>>`
 
 ## ファイル構成
 
 ```
 sanwa-appsheet-vertex-processor/
-├── README.md
+├── .github/
+│   └── workflows/
+│       ├── deploy.yml        # Cloud Runデプロイ
+│       └── pages.yml         # GitHub Pagesデプロイ
+├── docs/                     # ドキュメント（GitHub Pages）
+│   ├── _config.yml
+│   ├── index.md
+│   ├── architecture.md
+│   ├── api-spec.md
+│   ├── setup-guide.md
+│   ├── ci-cd.md
+│   └── gcp-setup.md
+├── src/
+│   ├── main.py               # Flaskエントリーポイント
+│   ├── config.py             # 環境変数管理
+│   ├── auth.py               # Webhook認証
+│   ├── vertex_ai.py          # Vertex AI連携
+│   └── sheets.py             # Sheets API連携
+├── deploy/
+│   └── setup.sh              # GCPセットアップスクリプト
 ├── Dockerfile
 ├── requirements.txt
 ├── .env.example
 ├── .envrc.example
-├── .gitignore
-├── docs/                 # ドキュメント格納用
-├── src/
-│   ├── main.py           # Flaskエントリーポイント、エンドポイント定義
-│   ├── config.py         # 環境変数の読み込みと設定管理
-│   ├── auth.py           # X-AppSheet-Secretによるリクエスト検証
-│   ├── vertex_ai.py      # Vertex AI (Gemini) 連携処理
-│   └── sheets.py         # Google Sheets API 連携処理
-└── deploy/
-    └── setup.sh          # GCPリソースセットアップスクリプト
+└── .gitignore
 ```
 
 ## ライセンス
