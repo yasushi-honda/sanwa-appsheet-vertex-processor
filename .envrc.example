@@ -1,0 +1,55 @@
+# direnv用環境変数テンプレート
+# 使用方法:
+#   1. このファイルを .envrc にコピー: cp .envrc.example .envrc
+#   2. 値を設定
+#   3. direnv allow を実行
+
+# =============================================
+# GitHub設定
+# =============================================
+export GITHUB_USER="yasushi-honda"
+export GITHUB_REPO="sanwa-appsheet-vertex-processor"
+
+# =============================================
+# GCP設定
+# =============================================
+export GCP_PROJECT_ID=""
+export GCP_REGION="asia-northeast1"
+export GCP_SERVICE_ACCOUNT="ai-processor"
+
+# =============================================
+# アプリケーション設定（Cloud Run環境変数と対応）
+# =============================================
+
+# 対象スプレッドシートのID
+# URLから取得: https://docs.google.com/spreadsheets/d/{SPREADSHEET_ID}/edit
+export SPREADSHEET_ID=""
+
+# 対象シート名
+export SHEET_NAME=""
+
+# 主キーカラム名（行の一意識別に使用）
+export PK_COLUMN=""
+
+# 処理対象データのカラム名
+export TARGET_COLUMN=""
+
+# AI処理結果を書き込むカラム名
+export RESULT_COLUMN=""
+
+# Webhook認証用シークレット（32文字以上推奨）
+# 生成例: openssl rand -base64 32
+export WEBHOOK_SECRET=""
+
+# =============================================
+# オプション設定
+# =============================================
+
+# Vertex AIリージョン（デフォルト: asia-northeast1）
+# export VERTEX_AI_LOCATION="asia-northeast1"
+
+# 使用するGeminiモデル（デフォルト: gemini-1.5-flash）
+# export VERTEX_AI_MODEL="gemini-1.5-flash"
+
+# ログレベル（DEBUG, INFO, WARNING, ERROR, CRITICAL）
+# export LOG_LEVEL="INFO"
