@@ -30,10 +30,7 @@ jobs:
         with:
           ruby-version: '3.2'
           bundler-cache: true
-
-      - name: Setup Pages
-        id: pages
-        uses: actions/configure-pages@v4
+          working-directory: docs
 
       - name: Create Gemfile
         run: |
@@ -51,7 +48,7 @@ jobs:
       - name: Build with Jekyll
         run: |
           cd docs
-          bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
+          bundle exec jekyll build --baseurl "/sanwa-appsheet-vertex-processor"
         env:
           JEKYLL_ENV: production
 
